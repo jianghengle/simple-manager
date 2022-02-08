@@ -1,6 +1,9 @@
 # client
 
-## Project setup
+## Prerequisites
+[Node.js](https://nodejs.org/en/). You can follow [the instruction](https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubuntu-20-04) to install it on Ubuntu.
+
+## Development
 ```
 npm install
 ```
@@ -17,3 +20,9 @@ npm run build
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+## Deployment
+```
+npm run build
+```
+And then copy the content of dist to S3 bucket `manage.vanityart.com bucket`.
