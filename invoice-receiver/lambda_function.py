@@ -34,7 +34,8 @@ def get_email_text(message):
 
 def get_invoice_overrides(text):
     overrides = {}
-    (content, _) = text.split('-----', 1)
+    ss = text.split('-----')
+    content = ss[0]
     multiple_line_field = ''
     for line in content.split('\n'):
         head = line
@@ -45,7 +46,10 @@ def get_invoice_overrides(text):
         value = tail.strip()
         if field in FIELDS:
             if field == 'reviewer':
-                overrides['reviewers'] = value
+                if '<mailto:' in value and '>' in value:
+                    (_, value) = value.split('mailto:')
+                    value = value.replace('>', '')
+                overrides['reviewers'] = value.lower()
             elif field == 'amount':
                 overrides['amount'] = float(value)
             else:
