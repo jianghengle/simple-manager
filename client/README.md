@@ -12,6 +12,7 @@ npm install
 ```
 npm run serve
 ```
+Open https://localhost:8080 to see the web app.
 
 ### Compiles and minifies for production
 ```
