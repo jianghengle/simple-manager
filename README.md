@@ -19,7 +19,7 @@ To develop the web app locally, first check out the repository, and then:
 ## Deployment
 To deploy the web app, follow the deployment instructions in the three individual folders probably in the order: django-rest, client, invoice-receiver.
 
-## Operations
+## Admin Operations
 
 ### Add a new user
 
