@@ -417,7 +417,7 @@ export default {
       }
       this.waitings.deleting = true
       this.$http.post(this.server + '/myapp/delete-cost/' + this.costId + '/').then(resp => {
-        this.$router.push('/costs')
+        this.$router.push('/invoices')
         this.waitings.deleting = false
       }, err => {
         this.error = err.body

@@ -4,6 +4,7 @@ from .views import user_view
 from .views import cost_view
 from .views import s3_view
 from .views import attachment_view
+from .views import my_config_view
 
 urlpatterns = [
     path('api-token-auth/', CustomAuthToken.as_view()),
@@ -21,4 +22,6 @@ urlpatterns = [
     path('get-s3-download-url/', s3_view.get_download_url, name='get-s3-download-url'),
     path('create-attachment/', attachment_view.create_attachment, name='create-attachment'),
     path('get-attachment/<str:attachment_id>/', attachment_view.get_attachment, name='get-attachment'),
+    path('get-my-config/', my_config_view.get_my_config, name='get-my-config'),
+    path('update-my-config/', my_config_view.update_my_config, name='update-my-config'),
 ]
