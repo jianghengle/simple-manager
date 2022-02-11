@@ -20,7 +20,7 @@ def get_all_emails(request):
     emails = []
     invoice_receiver = settings.INVOICE_RECEIVER_EMAIL
     for u in users:
-        if u.email != invoice_receiver:
+        if u.is_active and u.email != invoice_receiver:
             emails.append(u.email)
     return Response(emails)
 

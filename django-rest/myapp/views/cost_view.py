@@ -121,7 +121,6 @@ def send_approval(email, cost):
     body_text = EMAIL_BODY_TEXT.format(first_sentense, webapp, cost.id, invoice_link)
     body_html = EMAIL_BODY_HTML.format(first_sentense, webapp, cost.id, invoice_link)
     recipents = get_recipents(email, cost)
-    recipents = list(set(recipents + settings.INVOICE_APPROVAL_RECIPENTS.split(',')))
     send_email(recipents, subject, body_text, body_html)
 
 def send_rejection(email, cost):
@@ -132,7 +131,6 @@ def send_rejection(email, cost):
     body_text = EMAIL_BODY_TEXT.format(first_sentense, webapp, cost.id, invoice_link)
     body_html = EMAIL_BODY_HTML.format(first_sentense, webapp, cost.id, invoice_link)
     recipents = get_recipents(email, cost)
-    recipents = list(set(recipents + settings.INVOICE_APPROVAL_RECIPENTS.split(',')))
     send_email(recipents, subject, body_text, body_html)
 
 EMAIL_SUBJECT = "Invoice({}): {}"

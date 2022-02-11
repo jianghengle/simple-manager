@@ -25,10 +25,14 @@
           <div class="navbar-end">
             <a class="navbar-item" v-if="staff" target="_blank" :href="adminUrl">
               <span class="icon">
-                <i class="fas fa-users-cog"></i>
+                <i class="fas fa-database"></i>
               </span>
-              <span>Admin</span>
             </a>
+            <router-link class="navbar-item" v-if="superuser" :to="'/my-config'">
+              <span class="icon">
+                <i class="fas fa-cog"></i>
+              </span>
+            </router-link>
             <router-link class="navbar-item" v-if="!token" :to="'/'">
               <span class="icon">
                 <i class="fas fa-sign-in-alt"></i>
@@ -64,6 +68,9 @@ export default {
     },
     staff () {
       return this.$store.state.user.staff
+    },
+    superuser () {
+      return this.$store.state.user.superuser
     },
     routerPath () {
       return this.$route.path

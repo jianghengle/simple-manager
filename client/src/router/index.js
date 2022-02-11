@@ -38,6 +38,11 @@ const routes = [
     name: 'ChangePassword',
     component: () => import('../views/ChangePassword.vue')
   },
+  {
+    path: '/my-config',
+    name: 'MyConfig',
+    component: () => import('../views/MyConfig.vue')
+  },
 ]
 
 const router = new VueRouter({
