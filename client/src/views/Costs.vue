@@ -21,7 +21,7 @@
           <p class="control has-icons-left">
             <span class="select">
               <select v-model="filter">
-                <option :value="'working'">My Working Invoices</option>
+                <option :value="'my'">My Invoices</option>
                 <option :value="'all'">All Invoices</option>
               </select>
             </span>
@@ -108,6 +108,7 @@
                   <span class="tag is-link" v-if="c.status == 'Open'">Open</span>
                   <span class="tag is-success" v-if="c.status == 'Approved'">Approved</span>
                   <span class="tag is-warning" v-if="c.status == 'Rejected'">Rejected</span>
+                  <span class="tag is-dark" v-if="c.status == 'NS Bill Created'">NS Bill Created</span>
                 </td>
                 <td>
                   <span v-for="(t, j) in c.tags" :key="'tag-' + i + '-' + j">

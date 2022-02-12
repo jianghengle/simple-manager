@@ -13,6 +13,7 @@ class Cost(models.Model):
     tags = models.TextField(default='', blank=True)
     comment = models.TextField(default='', blank=True)
     attachments = models.TextField(default='', blank=True)
+    last_updated_by = models.CharField(max_length=512, default='', blank=True)
 
     def to_json(self):
         return {
@@ -28,7 +29,8 @@ class Cost(models.Model):
             'amount': self.amount,
             'tags': self.tags,
             'comment': self.comment,
-            'attachments': self.attachments
+            'attachments': self.attachments,
+            'lastUpdatedBy': self.last_updated_by,
         }
 
     def from_json(self, data):

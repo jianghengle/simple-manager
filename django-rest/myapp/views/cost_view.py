@@ -15,9 +15,9 @@ from django.conf import settings
 @permission_classes((IsAuthenticated,))
 def get_costs(request):
     filter_option = request.GET.get('filterOption')
-    if filter_option == 'working':
+    if filter_option == 'my':
         email = request.user.email
-        costs = Cost.objects.filter(status='Open').filter(Q(created_by=email) | Q(reviewers__icontains=email))
+        costs = Cost.objects.filter(Q(created_by=email) | Q(reviewers__icontains=email))
     else:
         costs = Cost.objects.all()
     return Response([c.to_json() for c in costs])
@@ -35,6 +35,7 @@ def get_cost(request, cost_id):
 def create_cost(request):
     cost = Cost()
     cost.from_json(request.data)
+    cost.last_updated_by = request.user.email
     cost.save()
     if (request.data['sendEmail']):
         send_notification(request.user.email, cost)
@@ -45,16 +46,25 @@ def create_cost(request):
 @permission_classes((IsAuthenticated,))
 def update_cost(request, cost_id):
     cost = Cost.objects.get(pk=cost_id)
-    check_edit(request.user.email, cost)
-    if cost.status != request.data['status']:
-        check_close(request.user.email, cost)
+    operator_email = request.user.email
+    target_status = request.data['status']
+    if cost.status == target_status:
+        check_edit(operator_email, cost)
+    else:
+        if target_status == 'Approved' or target_status == 'Rejected':
+            check_close(operator_email, cost)
+        elif target_status == 'NS Bill Created':
+            check_submit(operator_email, cost)
+        else:
+            raise PermissionDenied({'message': 'Wrong target status.'})
     cost.from_json(request.data)
+    cost.last_updated_by = operator_email
     cost.save()
-    if request.data['status'] == 'Approved':
+    if target_status == 'Approved':
         add_waterprints(cost)
-        send_approval(request.user.email, cost)
-    if request.data['status'] == 'Rejected':
-        send_rejection(request.user.email, cost)
+        send_approval(operator_email, cost)
+    if target_status == 'Rejected':
+        send_rejection(operator_email, cost)
     return Response(cost.to_json())
 
 @api_view(['POST'])
@@ -91,6 +101,15 @@ def check_close(email, cost):
     if email in cost.reviewers:
         return
     raise PermissionDenied({'message': 'You do not have permission to close.'})
+
+def check_submit(email, cost):
+    if cost.status != 'Approved':
+        raise PermissionDenied({'message': 'Status does not allow to submit.'})
+    if email == cost.created_by:
+        return
+    if email in cost.reviewers:
+        return
+    raise PermissionDenied({'message': 'You do not have permission to edit.'})
 
 def send_notification(email, cost):
     subject = 'Open: ' + EMAIL_SUBJECT.format(cost.id, cost.subject)

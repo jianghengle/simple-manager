@@ -51,6 +51,7 @@
                     <span class="tag is-link is-medium" v-if="model.status == 'Open'">Open</span>
                     <span class="tag is-success is-medium" v-if="model.status == 'Approved'">Approved</span>
                     <span class="tag is-warning is-medium" v-if="model.status == 'Rejected'">Rejected</span>
+                    <span class="tag is-dark is-medium" v-if="model.status == 'NS Bill Created'">NS Bill Created</span>
                   </p>
                 </div>
               </div>
@@ -161,6 +162,11 @@
                   Approve
                 </button>
               </div>
+              <div class="control" v-if="canSubmit">
+                <button class="button is-dark" :class="{'is-loading': waitings.submitting}" @click="submitCost">
+                  Submit NS Bill
+                </button>
+              </div>
               <div class="control" v-if="canClose">
                 <button class="button is-warning" :class="{'is-loading': waitings.rejecting}" @click="rejectCost">Reject</button>
               </div>
@@ -266,6 +272,18 @@ export default {
       }
       return false
     },
+    canSubmit () {
+      if (!this.cost) {
+        return false
+      }
+      if (this.cost.status != 'Approved') {
+        return false
+      }
+      if (this.cost.createdBy == this.email || this.cost.reviewers.includes(this.email)) {
+        return true
+      }
+      return false
+    },
   },
   watch: {
     costId: function (val) {
@@ -367,6 +385,34 @@ export default {
       }, err => {
         this.error = err.body
         this.waitings.approving = false
+      })
+    },
+    submitCost () {
+      var confirm = {
+        title: 'Submit Invoice',
+        message: 'Are you sure this invoice has been created in NetSuite?',
+        button: 'Yes, I am sure.',
+        callback: {
+          context: this,
+          method: this.submitCostConfirmed,
+          args: []
+        }
+      }
+      this.$store.commit('modals/openConfirmModal', confirm)
+    },
+    submitCostConfirmed () {
+      if (this.anyWaiting || !this.canSubmit) {
+        return
+      }
+      this.waitings.submitting = true
+      var message = this.modelToCost(this.model)
+      message.status = 'NS Bill Created'
+      this.$http.post(this.server + '/myapp/update-cost/' + this.costId + '/', message).then(resp => {
+        this.getCost()
+        this.waitings.submitting = false
+      }, err => {
+        this.error = err.body
+        this.waitings.submitting = false
       })
     },
     rejectCost () {

@@ -7,7 +7,7 @@ from .models import MyConfig
 # Register your models here.
 @admin.register(Cost)
 class CostAdmin(admin.ModelAdmin):
-    readonly_fields = ('created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at', 'last_updated_by')
 
 @admin.register(Attachment)
 class AttachmentAdmin(admin.ModelAdmin):
