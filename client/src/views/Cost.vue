@@ -140,14 +140,14 @@
             </div>
 
             <div class="field">
-              <label class="label">Invoice Number</label>
+              <label class="label">Invoice Number <span class="has-text-danger">*</span></label>
               <div class="control">
                 <input class="input" type="text" placeholder="Invoice Number" v-model="model.invoiceNumber" :readonly="!canEdit">
               </div>
             </div>
 
             <div class="field">
-              <label class="label">Vendor</label>
+              <label class="label">Vendor <span class="has-text-danger">*</span></label>
               <div class="field has-addons">
                 <div class="control">
                   <span class="select">
@@ -167,7 +167,7 @@
             </div>
 
             <div class="field">
-              <label class="label">Subsidiary</label>
+              <label class="label">Subsidiary <span class="has-text-danger">*</span></label>
               <div class="field has-addons">
                 <div class="control">
                   <span class="select">
@@ -235,7 +235,7 @@
                 <router-link :to="'/new-invoice/' + costId" class="button is-light">Copy to New</router-link>
               </div>
             </div>
-
+            <p v-if="canClose && !canApprove" class="help is-danger">The mandatory fields (with *) must be filled before approval.</p>
           </div>
         </div>
       </div>

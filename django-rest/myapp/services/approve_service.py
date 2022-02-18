@@ -7,6 +7,8 @@ from .s3_service import download_file, upload_file, copy_object
 def add_waterprints(cost):
     waterprint_file = None
     for s in cost.attachments.split(','):
+        if not s:
+            continue
         attachment = Attachment.objects.get(pk=s.strip())
         _, ext = os.path.splitext(attachment.name)
         if ext.lower() == '.pdf':
