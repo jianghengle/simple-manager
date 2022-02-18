@@ -2,6 +2,7 @@ from .cost import Cost
 from .attachment import Attachment
 from .password_reset import PasswordReset
 from .my_config import MyConfig
+from .vendor_subsidiary import VendorSubsidiary
 
 from django.conf import settings
 from django.db.models.signals import post_save

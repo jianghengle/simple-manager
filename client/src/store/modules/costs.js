@@ -5,7 +5,7 @@ export const state = {
     isAsc: false,
   },
   searchOption: '',
-  filterOption: 'working'
+  filterOption: 'my'
 }
 
 // mutations

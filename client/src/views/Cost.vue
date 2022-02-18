@@ -138,8 +138,66 @@
                 <textarea class="textarea" placeholder="Comment" v-model="model.comment" :readonly="!canEdit"></textarea>
               </div>
             </div>
+
+            <div class="field">
+              <label class="label">Invoice Number</label>
+              <div class="control">
+                <input class="input" type="text" placeholder="Invoice Number" v-model="model.invoiceNumber" :readonly="!canEdit">
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Vendor</label>
+              <div class="field has-addons">
+                <div class="control">
+                  <span class="select">
+                    <select v-model="model.vendorNameMode" :disabled="!canEdit">
+                      <option>Select</option>
+                      <option>New</option>
+                    </select>
+                  </span>
+                </div>
+                <div class="control is-expanded model-select-container" v-if="model.vendorNameMode == 'Select'">
+                  <model-select :options="vendorOptions" v-model="model.selectedVendorName" :isDisabled="!canEdit"/>
+                </div>
+                <div class="control is-expanded" v-if="model.vendorNameMode == 'New'">
+                  <input class="input" type="text" placeholder="Input new vendor" v-model="model.newVendorName" :readonly="!canEdit">
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Subsidiary</label>
+              <div class="field has-addons">
+                <div class="control">
+                  <span class="select">
+                    <select v-model="model.subsidiaryMode" :disabled="!canEdit">
+                      <option>Select</option>
+                      <option>New</option>
+                    </select>
+                  </span>
+                </div>
+                <div class="control is-expanded" v-if="model.subsidiaryMode == 'Select'">
+                  <span class="select">
+                    <select v-model="model.selectedSubsidiary" :disabled="!canEdit">
+                      <option v-for="(so, i) in subsidiaryList" :key="'subsidiary-option-' + i">{{so}}</option>
+                    </select>
+                  </span>
+                </div>
+                <div class="control is-expanded" v-if="model.subsidiaryMode == 'New'">
+                  <input class="input" type="text" placeholder="Input new subsidiary" v-model="model.newSubsidiary" :readonly="!canEdit">
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Expense Account</label>
+              <div class="control">
+                <input class="input" type="text" placeholder="Expense Account" v-model="model.expenseAccount" :readonly="!canEdit">
+              </div>
+            </div>
             
-            <div class="field is-grouped" v-if="cost.status == 'Open'">
+            <div class="field is-grouped mt-5" v-if="cost.status == 'Open'">
               <div class="control" v-if="canEdit">
                 <button class="button is-link" :disabled="!costChanged" :class="{'is-loading': waitings.saving}" @click="saveCost">
                   Save
@@ -158,7 +216,7 @@
 
             <div class="field is-grouped">
               <div class="control" v-if="canClose">
-                <button class="button is-success" :class="{'is-loading': waitings.approving}" @click="approveCost">
+                <button class="button is-success" :class="{'is-loading': waitings.approving}" :disabled="!canApprove" @click="approveCost">
                   Approve
                 </button>
               </div>
@@ -188,11 +246,13 @@
 <script>
 import dateFormat from 'dateformat'
 import Attachments from '@/components/attachments/Attachments'
+import { ModelSelect } from 'vue-search-select'
 
 export default {
   name: 'Cost',
   components: {
     Attachments,
+    ModelSelect,
   },
   data () {
     return {
@@ -208,12 +268,31 @@ export default {
       cost: null,
       model: null,
       newTag: '',
-      emails: []
+      emails: [],
     }
   },
   computed: {
     server () {
       return this.$store.state.config.server
+    },
+    vendorList () {
+      return this.$store.state.config.vendorList
+    },
+    vendorOptions () {
+      return this.vendorList.map(item => {
+        return {value: item, text: item}
+      })
+    },
+    subsidiaryList () {
+      return this.$store.state.config.subsidiaryList
+    },
+    modelVendorName () {
+      if (this.model) {
+        return this.model.vendorNameMode == 'New' ? this.model.newVendorName : this.model.selectedVendorName
+      }
+    },
+    vendorSubsidiaryMap () {
+      return this.$store.state.config.vendorSubsidiaryMap
     },
     token () {
       return this.$store.state.user.token
@@ -229,13 +308,23 @@ export default {
           || this.cost.description != this.model.description
           || this.cost.amount != this.model.amount
           || this.cost.comment != this.model.comment
-          || this.cost.reviewers != this.model.reviewers) {
+          || this.cost.reviewers != this.model.reviewers
+          || this.cost.invoiceNumber != this.model.invoiceNumber
+          || this.cost.expenseAccount != this.model.expenseAccount) {
         return true
       }
       if (this.cost.tags != this.model.tags.join(',')) {
         return true
       }
       if (this.cost.attachments != this.model.attachments.join(',')) {
+        return true
+      }
+      var vendorName = this.model.vendorNameMode == 'New' ? this.model.newVendorName : this.model.selectedVendorName
+      if (this.cost.vendorName != vendorName) {
+        return true
+      }
+      var subsidiary = this.model.subsidiaryMode == 'New' ? this.model.newSubsidiary : this.model.selectedSubsidiary
+      if (this.cost.subsidiary != subsidiary) {
         return true
       }
       return false
@@ -272,6 +361,16 @@ export default {
       }
       return false
     },
+    canApprove () {
+      if (!this.canClose) {
+        return false
+      }
+      var cost = this.modelToCost()
+      if (!cost.invoiceNumber || !cost.vendorName || !cost.subsidiary) {
+        return false
+      }
+      return true
+    },
     canSubmit () {
       if (!this.cost) {
         return false
@@ -288,6 +387,14 @@ export default {
   watch: {
     costId: function (val) {
       this.getCost()
+    },
+    modelVendorName: function (val) {
+      if (this.model.subsidiaryMode == 'Select') {
+        var subsidiary = this.vendorSubsidiaryMap[val]
+        if (subsidiary) {
+          this.model.selectedSubsidiary = subsidiary
+        }
+      }
     },
   },
   methods: {
@@ -316,6 +423,14 @@ export default {
         tags: cost.tags.split(',').filter(t => t),
         comment: cost.comment,
         attachments: cost.attachments.split(',').filter(a => a),
+        invoiceNumber: cost.invoiceNumber,
+        selectedVendorName: this.vendorList.includes(cost.vendorName) ? cost.vendorName : '',
+        vendorNameMode: this.vendorList.includes(cost.vendorName) || !cost.vendorName ? 'Select' : 'New',
+        newVendorName: this.vendorList.includes(cost.vendorName) ? '' : cost.vendorName,
+        selectedSubsidiary: this.subsidiaryList.includes(cost.subsidiary) ? cost.subsidiary : '',
+        subsidiaryMode: this.subsidiaryList.includes(cost.subsidiary) || !cost.subsidiary ? 'Select' : 'New', 
+        newSubsidiary: this.subsidiaryList.includes(cost.subsidiary) ? '' : cost.subsidiary,
+        expenseAccount: cost.expenseAccount,
       }
       return model
     },
@@ -332,6 +447,10 @@ export default {
         amount: this.model.amount,
         comment: this.model.comment,
         attachments: this.model.attachments.join(','),
+        invoiceNumber: this.model.invoiceNumber,
+        vendorName: this.model.vendorNameMode == 'New' ? this.model.newVendorName : this.model.selectedVendorName,
+        subsidiary: this.model.subsidiaryMode == 'New' ? this.model.newSubsidiary : this.model.selectedSubsidiary,
+        expenseAccount: this.model.expenseAccount,
       }
       return cost
     },
@@ -359,6 +478,9 @@ export default {
       })
     },
     approveCost () {
+      if (!this.canApprove) {
+        return
+      }
       var confirm = {
         title: 'Approve Invoice',
         message: 'Are you sure to approve this invoice?',
@@ -507,3 +629,11 @@ export default {
   },
 }
 </script>
+
+<style scoped lang="scss">
+ .model-select-container {
+   .ui {
+     height: 100%;
+   }
+ }
+</style>

@@ -5,6 +5,7 @@ from .views import cost_view
 from .views import s3_view
 from .views import attachment_view
 from .views import my_config_view
+from .views import vendor_subsidiary_view
 
 urlpatterns = [
     path('api-token-auth/', CustomAuthToken.as_view()),
@@ -24,4 +25,5 @@ urlpatterns = [
     path('get-attachment/<str:attachment_id>/', attachment_view.get_attachment, name='get-attachment'),
     path('get-my-config/', my_config_view.get_my_config, name='get-my-config'),
     path('update-my-config/', my_config_view.update_my_config, name='update-my-config'),
+    path('get-vendor-subsidiaries/', vendor_subsidiary_view.get_vendor_subsidiaries, name='get-vendor-subsidiaries'),
 ]

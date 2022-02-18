@@ -104,6 +104,7 @@ export default {
           }
           this.email = ''
           this.password = ''
+          this.getVendorSubsidiary()
           this.$router.push('/invoices')
         } else {
           this.error = 'Failed to sign in!'
@@ -113,6 +114,11 @@ export default {
       }, err => {
         this.error = err.body
         this.waiting = false
+      })
+    },
+    getVendorSubsidiary () {
+      this.$http.get(this.server + '/myapp/get-vendor-subsidiaries/').then(resp => {
+        this.$store.commit('config/setVendorSubsidiary', resp.body)
       })
     },
   },

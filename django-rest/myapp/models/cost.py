@@ -14,6 +14,10 @@ class Cost(models.Model):
     comment = models.TextField(default='', blank=True)
     attachments = models.TextField(default='', blank=True)
     last_updated_by = models.CharField(max_length=512, default='', blank=True)
+    subsidiary = models.CharField(max_length=1024, default='', blank=True)
+    vendor_name = models.CharField(max_length=1024, default='', blank=True)
+    invoice_number = models.CharField(max_length=1024, default='', blank=True)
+    expense_account = models.CharField(max_length=1024, default='', blank=True)
 
     def to_json(self):
         return {
@@ -31,6 +35,10 @@ class Cost(models.Model):
             'comment': self.comment,
             'attachments': self.attachments,
             'lastUpdatedBy': self.last_updated_by,
+            'subsidiary': self.subsidiary,
+            'vendorName': self.vendor_name,
+            'invoiceNumber': self.invoice_number,
+            'expenseAccount': self.expense_account,
         }
 
     def from_json(self, data):
@@ -44,3 +52,7 @@ class Cost(models.Model):
         self.tags = data['tags']
         self.comment = data['comment']
         self.attachments = data['attachments']
+        self.subsidiary = data.get('subsidiary', '')
+        self.vendor_name = data.get('vendorName', '')
+        self.invoice_number = data.get('invoiceNumber', '')
+        self.expense_account = data.get('expenseAccount', '')

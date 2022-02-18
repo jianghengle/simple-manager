@@ -2,7 +2,7 @@ import os, io
 import PyPDF2
 from django.conf import settings
 from ..models.attachment import Attachment
-from .s3_service import download_file, upload_file
+from .s3_service import download_file, upload_file, copy_object
 
 def add_waterprints(cost):
     waterprint_file = None
@@ -15,7 +15,12 @@ def add_waterprints(cost):
                 waterprint_file = open('/tmp/waterprint.pdf', 'rb')
                 waterprint_pdf = PyPDF2.PdfFileReader(waterprint_file)
                 waterprint_page = waterprint_pdf.getPage(0)
-            add_waterprint(cost, attachment, waterprint_page)
+            try:
+                add_waterprint(cost, attachment, waterprint_page)
+            except:
+                copy_attachment_to_approved(cost, attachment)
+        else:
+            copy_attachment_to_approved(cost, attachment)
     if waterprint_file != None:
         waterprint_file.close()
         os.remove('/tmp/waterprint.pdf')
@@ -49,3 +54,10 @@ def add_waterprint(cost, attachment, waterprint_page):
 
     attachment.s3_key = new_key
     attachment.save()
+
+def copy_attachment_to_approved(cost, attachment):
+    source_bucket = attachment.s3_bucket
+    source_key = attachment.s3_key
+    (path, name) = os.path.split(source_key)
+    target_key = os.path.join(path, 'approved', str(cost.id), name)
+    copy_object(source_bucket, source_key, source_bucket, target_key)

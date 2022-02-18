@@ -97,6 +97,64 @@
               </div>
             </div>
 
+            <div class="field">
+              <label class="label">Invoice Number</label>
+              <div class="control">
+                <input class="input" type="text" placeholder="Invoice Number" v-model="model.invoiceNumber">
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Vendor</label>
+              <div class="field has-addons">
+                <div class="control">
+                  <span class="select">
+                    <select v-model="model.vendorNameMode">
+                      <option>Select</option>
+                      <option>New</option>
+                    </select>
+                  </span>
+                </div>
+                <div class="control is-expanded model-select-container" v-if="model.vendorNameMode == 'Select'">
+                  <model-select :options="vendorOptions" v-model="model.selectedVendorName"/>
+                </div>
+                <div class="control is-expanded" v-if="model.vendorNameMode == 'New'">
+                  <input class="input" type="text" placeholder="Input new vendor" v-model="model.newVendorName">
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Subsidiary</label>
+              <div class="field has-addons">
+                <div class="control">
+                  <span class="select">
+                    <select v-model="model.subsidiaryMode">
+                      <option>Select</option>
+                      <option>New</option>
+                    </select>
+                  </span>
+                </div>
+                <div class="control is-expanded" v-if="model.subsidiaryMode == 'Select'">
+                  <span class="select">
+                    <select v-model="model.selectedSubsidiary">
+                      <option v-for="(so, i) in subsidiaryList" :key="'subsidiary-option-' + i">{{so}}</option>
+                    </select>
+                  </span>
+                </div>
+                <div class="control is-expanded" v-if="model.subsidiaryMode == 'New'">
+                  <input class="input" type="text" placeholder="Input new subsidiary" v-model="model.newSubsidiary">
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Expense Account</label>
+              <div class="control">
+                <input class="input" type="text" placeholder="Expense Account" v-model="model.expenseAccount">
+              </div>
+            </div>
+
             <div class="field is-grouped">
               <div class="control">
                 <button class="button is-link" :class="{'is-loading': waitings.creating}" @click="createCost(true)">
@@ -117,11 +175,13 @@
 
 <script>
 import Attachments from '@/components/attachments/Attachments'
+import { ModelSelect } from 'vue-search-select'
 
 export default {
   name: 'NewCost',
   components: {
     Attachments,
+    ModelSelect,
   },
   data () {
     return {
@@ -140,6 +200,25 @@ export default {
     server () {
       return this.$store.state.config.server
     },
+    vendorList () {
+      return this.$store.state.config.vendorList
+    },
+    vendorOptions () {
+      return this.vendorList.map(item => {
+        return {value: item, text: item}
+      })
+    },
+    subsidiaryList () {
+      return this.$store.state.config.subsidiaryList
+    },
+    modelVendorName () {
+      if (this.model) {
+        return this.model.vendorNameMode == 'New' ? this.model.newVendorName : this.model.selectedVendorName
+      }
+    },
+    vendorSubsidiaryMap () {
+      return this.$store.state.config.vendorSubsidiaryMap
+    },
     token () {
       return this.$store.state.user.token
     },
@@ -157,6 +236,16 @@ export default {
       }
       return false
     }
+  },
+  watch: {
+    modelVendorName: function (val) {
+      if (this.model.subsidiaryMode == 'Select') {
+        var subsidiary = this.vendorSubsidiaryMap[val]
+        if (subsidiary) {
+          this.model.selectedSubsidiary = subsidiary
+        }
+      }
+    },
   },
   methods: {
     getCost () {
@@ -179,6 +268,14 @@ export default {
         tags: cost.tags.split(',').filter(t => t),
         comment: cost.comment,
         attachments: cost.attachments.split(',').filter(c => c),
+        invoiceNumber: cost.invoiceNumber,
+        selectedVendorName: this.vendorList.includes(cost.vendorName) ? cost.vendorName : '',
+        vendorNameMode: this.vendorList.includes(cost.vendorName) || !cost.vendorName ? 'Select' : 'New',
+        newVendorName: this.vendorList.includes(cost.vendorName) ? '' : cost.vendorName,
+        selectedSubsidiary: this.subsidiaryList.includes(cost.subsidiary) ? cost.subsidiary : '',
+        subsidiaryMode: this.subsidiaryList.includes(cost.subsidiary) || !cost.subsidiary ? 'Select' : 'New', 
+        newSubsidiary: this.subsidiaryList.includes(cost.subsidiary) ? '' : cost.subsidiary,
+        expenseAccount: cost.expenseAccount,
       }
       return model
     },
@@ -194,6 +291,10 @@ export default {
         amount: this.model.amount,
         comment: this.model.comment,
         attachments: this.model.attachments.join(','),
+        invoiceNumber: this.model.invoiceNumber,
+        vendorName: this.model.vendorNameMode == 'New' ? this.model.newVendorName : this.model.selectedVendorName,
+        subsidiary: this.model.subsidiaryMode == 'New' ? this.model.newSubsidiary : this.model.selectedSubsidiary,
+        expenseAccount: this.model.expenseAccount,
       }
       return cost
     },
@@ -256,8 +357,24 @@ export default {
         tags: [],
         comment: '',
         attachments: [],
+        invoiceNumber: '',
+        selectedVendorName: '',
+        vendorNameMode: 'Select',
+        newVendorName: '',
+        selectedSubsidiary: '',
+        subsidiaryMode: 'Select', 
+        newSubsidiary: '',
+        expenseAccount: '',
       }
     }
   },
 }
 </script>
+
+<style scoped lang="scss">
+ .model-select-container {
+   .ui {
+     height: 100%;
+   }
+ }
+</style>

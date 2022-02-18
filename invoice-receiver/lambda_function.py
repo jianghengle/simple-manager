@@ -5,7 +5,7 @@ import urllib.request
 import boto3
 import email
 
-FIELDS = ['subject', 'description', 'reviewer', 'amount', 'tags', 'comment']
+FIELDS = ['subject', 'description', 'reviewer', 'amount', 'tags', 'comment', 'invoice number', 'vendor name', 'subsidiary', 'expense account']
 BUCKET = 'simple-manager-web-app'
 KEY_PREFIX = 'production/attachments/'
 SERVER = 'https://myapi.vanityart.com'
@@ -52,6 +52,12 @@ def get_invoice_overrides(text):
                 overrides['reviewers'] = value.lower()
             elif field == 'amount':
                 overrides['amount'] = float(value)
+            elif field == 'invoice number':
+                overrides['invoiceNumber'] = value
+            elif field == 'vendor name':
+                overrides['vendorName'] = value
+            elif field == 'expense account':
+                overrides['expenseAccount'] = value
             else:
                 overrides[field] = value
             if field == 'description' or field == 'comment':
@@ -72,7 +78,7 @@ def get_attachments(message):
             filename = part.get_filename()
             if filename:
                 _, ext = os.path.splitext(filename)
-                if ext.lower() == '.pdf':
+                if ext.lower() in ['.pdf', '.xls', '.xlsx', '.doc', '.docx']:
                     attachments[filename] = part.get_payload(decode=True)
     return attachments
     
@@ -150,6 +156,10 @@ def handle_email_message(message):
         'amount': 0,
         'tags': '',
         'comment': '',
+        'invoiceNumber': '',
+        'vendorName': '',
+        'subsidiary': '',
+        'expenseAccount': '',
         'attachments': ','.join(attachment_ids),
         'sendEmail': True
     }

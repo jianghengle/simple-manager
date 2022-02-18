@@ -103,10 +103,16 @@ export default {
         this.$router.push('/')
       }
     },
+    getVendorSubsidiary () {
+      this.$http.get(this.server + '/myapp/get-vendor-subsidiaries/').then(resp => {
+        this.$store.commit('config/setVendorSubsidiary', resp.body)
+      })
+    },
   },
   mounted () {
     if (this.token) {
       Vue.http.headers.common['Authorization'] = 'Token ' + this.token
+      this.getVendorSubsidiary()
     }
   }
 }

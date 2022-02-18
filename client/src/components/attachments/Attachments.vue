@@ -8,7 +8,7 @@
         <div class="control">
           <div class="file has-name">
             <label class="file-label">
-              <input class="file-input" type="file" accept="application/pdf" @change="onFileChange">
+              <input class="file-input" type="file" accept=".pdf, .xls, .xlsx, .doc, .docx" @change="onFileChange">
               <span class="file-cta">
                 <span class="file-icon">
                   <i class="fas fa-upload"></i>

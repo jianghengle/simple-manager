@@ -71,3 +71,13 @@ def upload_file(file_path, bucket, key):
                              aws_access_key_id=settings.ACCESS_KEY_ID, 
                              aws_secret_access_key=settings.SECRET_ACCESS_KEY)
     s3_client.upload_file(file_path, bucket, key)
+
+def copy_object(source_bucket, source_key, target_bucket, target_key):
+    s3_client = boto3.client('s3', 
+                             aws_access_key_id=settings.ACCESS_KEY_ID, 
+                             aws_secret_access_key=settings.SECRET_ACCESS_KEY)
+    copy_source = {
+        'Bucket': source_bucket,
+        'Key': source_key
+    }
+    s3_client.copy(copy_source, target_bucket, target_key)

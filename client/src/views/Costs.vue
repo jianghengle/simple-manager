@@ -32,7 +32,7 @@
         </div>
         <div class="column field  mb-0 pb-0">
           <p class="control has-icons-left">
-            <input class="input" type="text" placeholder="Search in Subject and Tags" v-model="search">
+            <input class="input" type="text" placeholder="Search in invoice#, vendor, subject and tags" v-model="search">
             <span class="icon is-small is-left">
               <i class="fas fa-search"></i>
             </span>
@@ -55,6 +55,18 @@
                     <i class="fas" :class="{'fa-sort-up': sortOption.asc, 'fa-sort-down': !sortOption.asc}"></i>
                   </span>
                 </th>
+                <th class="is-clickable" @click="changeSortOption('invoiceNumber')">
+                  <span>Invoice Number</span>
+                  <span class="icon" v-if="sortOption.field == 'invoiceNumber'">
+                    <i class="fas" :class="{'fa-sort-up': sortOption.asc, 'fa-sort-down': !sortOption.asc}"></i>
+                  </span>
+                </th>
+                <th class="is-clickable" @click="changeSortOption('vendorName')">
+                  <span>Vendor</span>
+                  <span class="icon" v-if="sortOption.field == 'vendorName'">
+                    <i class="fas" :class="{'fa-sort-up': sortOption.asc, 'fa-sort-down': !sortOption.asc}"></i>
+                  </span>
+                </th>
                 <th class="is-clickable" @click="changeSortOption('subject')">
                   <span>Subject</span>
                   <span class="icon" v-if="sortOption.field == 'subject'">
@@ -70,6 +82,12 @@
                 <th class="is-clickable" @click="changeSortOption('status')">
                   <span>Status</span>
                   <span class="icon" v-if="sortOption.field == 'status'">
+                    <i class="fas" :class="{'fa-sort-up': sortOption.asc, 'fa-sort-down': !sortOption.asc}"></i>
+                  </span>
+                </th>
+                <th class="is-clickable" @click="changeSortOption('subsidiary')">
+                  <span>Subsidiary</span>
+                  <span class="icon" v-if="sortOption.field == 'subsidiary'">
                     <i class="fas" :class="{'fa-sort-up': sortOption.asc, 'fa-sort-down': !sortOption.asc}"></i>
                   </span>
                 </th>
@@ -102,6 +120,8 @@
             <tbody>
               <tr class="is-clickable" v-for="(c, i) in showingCosts" :key="'cost-' + c.id" @click="viewCost(c)">
                 <td>{{c.id}}</td>
+                <td>{{c.invoiceNumber}}</td>
+                <td>{{c.vendorName}}</td>
                 <td>{{c.subject}}</td>
                 <td class="has-text-right">{{c.amount}}</td>
                 <td>
@@ -110,6 +130,7 @@
                   <span class="tag is-warning" v-if="c.status == 'Rejected'">Rejected</span>
                   <span class="tag is-dark" v-if="c.status == 'NS Bill Created'">NS Bill Created</span>
                 </td>
+                <td>{{c.subsidiary}}</td>
                 <td>
                   <span v-for="(t, j) in c.tags" :key="'tag-' + i + '-' + j">
                     <span class="tag is-info">{{t}}</span>&nbsp;
@@ -164,14 +185,13 @@ export default {
     showingCosts () {
       var search = this.search.trim()
       var filteredCosts = this.costs.filter(c => {
-        return c.subject.includes(search) || c.tags.includes(search)
+        return c.subject.includes(search) || c.tags.includes(search) || c.invoiceNumber.includes(search) || c.vendorName.includes(search)
       })
       var sort = this.sortOption
       var sortedCosts = filteredCosts.sort((a, b) => {
         var va = a[sort.field]
         var vb = b[sort.field]
-        if (sort.field == 'id' || sort.field == 'amount' || sort.field == 'createdAt'
-          || sort.field == 'createdBy' || sort.field == 'reviewers') {
+        if (sort.field == 'id' || sort.field == 'amount' || sort.field == 'createdAt') {
           return sort.asc ? va - vb : vb - va
         }
         return sort.asc ? va.localeCompare(vb) : vb.localeCompare(va)
@@ -185,7 +205,10 @@ export default {
           tags: c.tags.split(',').filter(t => t),
           createdAt: dateFormat(new Date(c.createdAt * 1000), 'mm/dd/yyyy'),
           createdBy: c.createdBy,
-          reviewers: c.reviewers
+          reviewers: c.reviewers,
+          invoiceNumber: c.invoiceNumber,
+          vendorName: c.vendorName,
+          subsidiary: c.subsidiary,
         }
       })
     },
