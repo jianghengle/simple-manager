@@ -66,8 +66,16 @@ source venv/bin/activate
 python manage.py collectstatic
 ```
 ### 2. Init Elastic Beanstalk
-If your `venv` is active, first deactivate it by `deactivate` 
-eb init
+If your `venv` is active, first deactivate it by `deactivate`. 
+
+And then, you can either following [the instruction](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create-deploy-python-django.html#python-django-deploy) and run `eb init` but make the configs look like [this configs](https://github.com/jianghengle/simple-manager/blob/main/resources/.elasticbeanstalk/config.yml) (you do not need to do the SSH part), or you can also copy the [.elasticbeanstalk](https://github.com/jianghengle/simple-manager/tree/main/resources/.elasticbeanstalk) directory into you local `django-rest` directory.
 
 ### 3. Eb create or Check env and its variables
+First run `eb status` to confirm the environment `django-rest-prod` exists. If you cannot find the environment from the output and also the AWS console, you will need to create the environment by `eb create django-rest-prod`.
+
+And then, go the environment from the AWS console, and on the environment configuration page click the `Edit` button on `Software` category, and make sure it has all the environment variables needed as in [production.py](https://github.com/jianghengle/simple-manager/blob/main/django-rest/config/settings/production.py) and also `STAGE` environment variable should be `production`.
+
 ### 4. eb deploy
+```
+eb deploy
+```
