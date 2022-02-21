@@ -25,6 +25,10 @@ S3 host single page application
 - To use customer domain name, need to make a cname in DNS pointing to the S3 bucket, and the bucket name needs to be the same as the domain name.
 - To use https, need to set up cloud front and attach the certificate
 
+Customer domain name and HTTPS
+- Customer domain names can be implemented by adding CNAME records.
+- SSL certificates can be requested from [AWS Certificate Manager (ACM)](https://aws.amazon.com/certificate-manager/). To verify the domain of the certificate, we need to add another requested CNAME record in your DNS table. 
+
 Receive emails from SES
 - There is only one active rule set, but we can add a new rule to take action on some specific email
 - To listen to incoming email, we can just add `Deliver to Amazon S3 bucket` action only and then set up lambda listening to the S3 bucket `raw-emails/` directory.
