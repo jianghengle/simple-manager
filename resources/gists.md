@@ -1,3 +1,5 @@
+# Some knowledges learned
+
 If the urls of the backend all end with `/`, when the front end calls it, make sure to add `/` at the end as well, even for GET. Otherwise, those calls may fail in browsers on Apple device or iOS system.
 
 When getting S3 presigned url and showing the doc in google doc viewer, you need to first encode the presigned url and then put the encoded url in google viewer url.
