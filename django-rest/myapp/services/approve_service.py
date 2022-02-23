@@ -6,6 +6,7 @@ from .s3_service import download_file, upload_file, copy_object
 
 def add_waterprints(cost):
     waterprint_file = None
+    new_attachments = []
     for s in cost.attachments.split(','):
         if not s:
             continue
@@ -18,11 +19,18 @@ def add_waterprints(cost):
                 waterprint_pdf = PyPDF2.PdfFileReader(waterprint_file)
                 waterprint_page = waterprint_pdf.getPage(0)
             try:
-                add_waterprint(cost, attachment, waterprint_page)
+                new_attachment = add_waterprint(cost, attachment, waterprint_page)
+                new_attachments.append(new_attachment)
             except:
-                copy_attachment_to_approved(cost, attachment)
+                new_attachment = copy_attachment_to_approved(cost, attachment)
+                new_attachments.append(new_attachment)
         else:
-            copy_attachment_to_approved(cost, attachment)
+            new_attachment = copy_attachment_to_approved(cost, attachment)
+            new_attachments.append(new_attachment)
+    if len(new_attachments):
+        new_attachment_ids = [str(a.id) for a in new_attachments]
+        cost.attachments = ','.join(new_attachment_ids)
+        cost.save()
     if waterprint_file != None:
         waterprint_file.close()
         os.remove('/tmp/waterprint.pdf')
@@ -48,18 +56,29 @@ def add_waterprint(cost, attachment, waterprint_page):
     input_file.close()
     output_file.close()
 
-    new_key = os.path.join(path, 'approved', str(cost.id), name)
+    stage = os.environ.get('STAGE', 'development')
+    new_key = os.path.join(stage, 'attachments', 'approved', str(cost.id), name)
     upload_file(temp_output_file_path, attachment.s3_bucket, new_key)
 
     os.remove(temp_input_file_path)
     os.remove(temp_output_file_path)
 
-    attachment.s3_key = new_key
-    attachment.save()
+    new_attachment = Attachment()
+    new_attachment.from_json(attachment.to_json())
+    new_attachment.s3_key = new_key
+    new_attachment.save()
+    return new_attachment
 
 def copy_attachment_to_approved(cost, attachment):
     source_bucket = attachment.s3_bucket
     source_key = attachment.s3_key
     (path, name) = os.path.split(source_key)
-    target_key = os.path.join(path, 'approved', str(cost.id), name)
+    stage = os.environ.get('STAGE', 'development')
+    target_key = os.path.join(stage, 'attachments', 'approved', str(cost.id), name)
     copy_object(source_bucket, source_key, source_bucket, target_key)
+
+    new_attachment = Attachment()
+    new_attachment.from_json(attachment.to_json())
+    new_attachment.s3_key = target_key
+    new_attachment.save()
+    return new_attachment

@@ -405,7 +405,7 @@ export default {
         this.model = this.costToModel(resp.body)
         this.waitings.loading = false
       }, err => {
-        this.error = err.body
+        this.error = 'Cannot find the invoice: ' + this.costId + '. It might not exist or be deleted.'
         this.waitings.loading = false
       })
     },
