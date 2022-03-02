@@ -183,9 +183,12 @@ export default {
       return this.$store.state.costs.filterOption
     },
     showingCosts () {
-      var search = this.search.trim()
+      var search = this.search.trim().toLowerCase()
       var filteredCosts = this.costs.filter(c => {
-        return c.subject.includes(search) || c.tags.includes(search) || c.invoiceNumber.includes(search) || c.vendorName.includes(search)
+        return c.subject.toLowerCase().includes(search)
+          || c.tags.toLowerCase().includes(search)
+          || c.invoiceNumber.toLowerCase().includes(search)
+          || c.vendorName.toLowerCase().includes(search)
       })
       var sort = this.sortOption
       var sortedCosts = filteredCosts.sort((a, b) => {

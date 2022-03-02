@@ -25,3 +25,6 @@ SECRET_ACCESS_KEY = os.environ.get('SECRET_ACCESS_KEY', 'secret')
 
 WEB_APP_DOMAIN = os.environ.get('WEB_APP_DOMAIN', 'http://localhost:8000')
 INVOICE_APPROVAL_RECIPENTS = os.environ.get('INVOICE_APPROVAL_RECIPENTS', '')
+
+SHAREPOINT_CLIENT_ID = os.environ.get('SHAREPOINT_CLIENT_ID', '')
+SHAREPOINT_CLIENT_SECRET = os.environ.get('SHAREPOINT_CLIENT_SECRET', '')

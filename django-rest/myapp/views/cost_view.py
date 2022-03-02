@@ -7,7 +7,7 @@ from rest_framework.exceptions import PermissionDenied
 from ..models.cost import Cost
 from django.db.models import Q
 from ..services.ses_service import send_email
-from ..services.approve_service import add_waterprints
+from ..services.approve_service import approve_cost
 from django.conf import settings
 
 @api_view(['GET'])
@@ -61,7 +61,7 @@ def update_cost(request, cost_id):
     cost.last_updated_by = operator_email
     cost.save()
     if target_status == 'Approved':
-        add_waterprints(cost)
+        approve_cost(cost)
         send_approval(operator_email, cost)
     if target_status == 'Rejected':
         send_rejection(operator_email, cost)
