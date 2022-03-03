@@ -16,7 +16,7 @@ def approve_cost(cost):
     waterprint_page = waterprint_pdf.getPage(0)
     new_attachment_ids = []
 
-    (output_pdf, other_attachments) = collect_pdf_and_others(cost, waterprint_page)
+    (output_pdf, other_attachments, input_file_paths, input_files) = collect_pdf_and_others(cost, waterprint_page)
 
     new_attachment_ids.append(save_main_pdf(cost, output_pdf, other_attachments))
     for i in range(len(other_attachments)):
@@ -26,7 +26,11 @@ def approve_cost(cost):
 
     waterprint_file.close()
     os.remove('/tmp/waterprint.pdf')
-    
+
+    for input_file in input_files:
+        input_file.close()
+    for input_file_path in input_file_paths:
+        os.remove(input_file_path)
 
 def save_main_pdf(cost, output_pdf, other_attachments):
     pdf_name = '_'.join([cost.vendor_name, cost.invoice_number, cost.subsidiary, 'id(' + str(cost.id) + ')'])
@@ -85,6 +89,8 @@ def save_other_attachment(i, attachment, cost):
 def collect_pdf_and_others(cost, waterprint_page):
     output_pdf = PyPDF2.PdfFileWriter()
     other_attachments = []
+    input_file_paths = []
+    input_files = []
     for s in cost.attachments.split(','):
         if not s:
             continue
@@ -94,21 +100,21 @@ def collect_pdf_and_others(cost, waterprint_page):
             try:
                 (path, name) = os.path.split(attachment.s3_key)
                 temp_input_file_path = '/tmp/input-' + name
+                input_file_paths.append(temp_input_file_path)
                 download_file(temp_input_file_path, attachment.s3_bucket, attachment.s3_key)
                 input_file = open(temp_input_file_path, 'rb')
+                input_files.append(input_file)
                 input_pdf = PyPDF2.PdfFileReader(input_file)
                 for i in range(input_pdf.getNumPages()):
                     pdf_page = input_pdf.getPage(i)
                     pdf_page.mergePage(waterprint_page)
                     output_pdf.addPage(pdf_page)
-                input_file.close()
-                os.remove(temp_input_file_path)
             except:
                 other_attachments.append(attachment)
         else:
             other_attachments.append(attachment)
     write_description_to_pdf(cost, waterprint_page, output_pdf)
-    return (output_pdf, other_attachments)
+    return (output_pdf, other_attachments, input_file_paths, input_files)
 
 
 def write_description_to_pdf(cost, waterprint_page, output_pdf):

@@ -43,6 +43,4 @@ def try_get_folder(client, path):
             raise ValueError(e.response.text)
 
 def create_folder(client, path):
-    (parent_path, name) = os.path.split(path)
-    parent_folder = client.web.default_document_library().root_folder.folders.get_by_url(parent_path)
-    DocumentSet.create(client, parent_folder, name).execute_query()
+    client.web.folders.add(path)
