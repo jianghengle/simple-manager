@@ -33,7 +33,10 @@ def approve_cost(cost):
         os.remove(input_file_path)
 
 def save_main_pdf(cost, output_pdf, other_attachments):
-    pdf_name = '_'.join([cost.vendor_name, cost.invoice_number, cost.subsidiary, 'id(' + str(cost.id) + ')'])
+    vendor_name = replace_special_chars(cost.vendor_name)
+    invoice_number = replace_special_chars(cost.invoice_number)
+    subsidiary = replace_special_chars(cost.subsidiary)
+    pdf_name = '_'.join([vendor_name, invoice_number, subsidiary, 'id(' + str(cost.id) + ')'])
     if len(other_attachments):
         pdf_name = pdf_name + '(1).pdf'
     else:
@@ -57,7 +60,7 @@ def save_main_pdf(cost, output_pdf, other_attachments):
 
     with open(temp_output_file_path, 'rb') as content_file:
         file_content = content_file.read()
-        save_to_sharepoint(file_content, pdf_name, cost.vendor_name)
+        save_to_sharepoint(file_content, pdf_name, vendor_name)
 
     os.remove(temp_output_file_path)
 
@@ -66,7 +69,10 @@ def save_main_pdf(cost, output_pdf, other_attachments):
 
 def save_other_attachment(i, attachment, cost):
     _, ext = os.path.splitext(attachment.name)
-    filename = '_'.join([cost.vendor_name, cost.invoice_number, cost.subsidiary, 'id(' + str(cost.id) + ')']) + '(' + str(i + 2) + ')' + ext
+    vendor_name = replace_special_chars(cost.vendor_name)
+    invoice_number = replace_special_chars(cost.invoice_number)
+    subsidiary = replace_special_chars(cost.subsidiary)
+    filename = '_'.join([vendor_name, invoice_number, subsidiary, 'id(' + str(cost.id) + ')']) + '(' + str(i + 2) + ')' + ext
     source_bucket = attachment.s3_bucket
     source_key = attachment.s3_key
     (path, name) = os.path.split(source_key)
@@ -81,7 +87,7 @@ def save_other_attachment(i, attachment, cost):
     new_attachment.save()
 
     file_content = get_object_content(source_bucket, target_key)
-    save_to_sharepoint(file_content, filename, cost.vendor_name)
+    save_to_sharepoint(file_content, filename, vendor_name)
     return str(new_attachment.id)
 
 
@@ -109,7 +115,8 @@ def collect_pdf_and_others(cost, waterprint_page):
                     pdf_page = input_pdf.getPage(i)
                     pdf_page.mergePage(waterprint_page)
                     output_pdf.addPage(pdf_page)
-            except:
+            except Exception as e:
+                print(e)
                 other_attachments.append(attachment)
         else:
             other_attachments.append(attachment)
@@ -133,3 +140,11 @@ def write_description_to_pdf(cost, waterprint_page, output_pdf):
         output_pdf.addPage(pdf_page)
     input_file.close()
     os.remove(temp_file_path)
+
+def replace_special_chars(s):
+    special_chars = ['~', '"', '#', '%', '&', '*', ':', '<', '>', '?', '/', '\\', '{', '|', '}', '.']
+    output = s
+    for c in special_chars:
+        output = output.replace(c, '-')
+    return output
+
