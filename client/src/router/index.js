@@ -43,6 +43,16 @@ const routes = [
     name: 'MyConfig',
     component: () => import('../views/MyConfig.vue')
   },
+  {
+    path: '/products',
+    name: 'Products',
+    component: () => import('../views/Products.vue')
+  },
+  {
+    path: '/product/:productId',
+    name: 'Product',
+    component: () => import('../views/Product.vue')
+  },
 ]
 
 const router = new VueRouter({

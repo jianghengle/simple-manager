@@ -4,6 +4,9 @@ from .models import Attachment
 from .models import PasswordReset
 from .models import MyConfig
 from .models import VendorSubsidiary
+from .models import Product
+from .models import Channel
+from .models import Price
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin, ExportActionMixin
 
@@ -14,6 +17,10 @@ class CostResource(resources.ModelResource):
 class VendorSubsidiaryResource(resources.ModelResource):
     class Meta:
         model = VendorSubsidiary
+
+class ProductResource(resources.ModelResource):
+    class Meta:
+        model = Product
 
 # Register your models here.
 @admin.register(Cost)
@@ -36,3 +43,15 @@ class MyConfigAdmin(admin.ModelAdmin):
 @admin.register(VendorSubsidiary)
 class VendorSubsidiaryAdmin(ImportExportModelAdmin):
     resource_class = VendorSubsidiaryResource
+
+@admin.register(Product)
+class VendorSubsidiaryAdmin(ImportExportModelAdmin):
+    resource_class = ProductResource
+
+@admin.register(Channel)
+class ChannelAdmin(admin.ModelAdmin):
+    readonly_fields = ('created_at', 'updated_at')
+
+@admin.register(Price)
+class PriceAdmin(admin.ModelAdmin):
+    readonly_fields = ('created_at', 'updated_at')

@@ -6,6 +6,7 @@ from .views import s3_view
 from .views import attachment_view
 from .views import my_config_view
 from .views import vendor_subsidiary_view
+from .views import product_price_view
 
 urlpatterns = [
     path('api-token-auth/', CustomAuthToken.as_view()),
@@ -26,4 +27,7 @@ urlpatterns = [
     path('get-my-config/', my_config_view.get_my_config, name='get-my-config'),
     path('update-my-config/', my_config_view.update_my_config, name='update-my-config'),
     path('get-vendor-subsidiaries/', vendor_subsidiary_view.get_vendor_subsidiaries, name='get-vendor-subsidiaries'),
+    path('get-products-with-latest-prices/', product_price_view.get_products_with_latest_prices, name='get-products-with-latest-prices'),
+    path('get-product-with-prices/<str:product_id>/', product_price_view.get_product_with_prices, name='get-product-with-prices'),
+    path('update-product-latest-price/<str:product_id>/<str:channel_id>/', product_price_view.update_product_latest_price, name='update-product-latest-price'),
 ]

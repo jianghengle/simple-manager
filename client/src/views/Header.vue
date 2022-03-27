@@ -20,6 +20,9 @@
             <router-link class="navbar-item" :to="'/invoices'">
               Invoices
             </router-link >
+            <router-link class="navbar-item" :to="'/products'">
+              Price Monitor
+            </router-link >
           </div>
 
           <div class="navbar-end">
