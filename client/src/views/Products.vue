@@ -71,7 +71,10 @@
             <tbody>
               <tr class="is-clickable" v-for="(p, i) in showingProducts" :key="'product-' + i" @click="viewProduct(p)">
                 <td>{{p.id}}</td>
-                <td>{{p.nameLabel}}</td>
+                <td>
+                  <abbr v-if="p.nameAbbr" :title="p.name">{{p.nameAbbr}}</abbr>
+                  <span v-if="!p.nameAbbr">{{p.name}}</span>
+                </td>
                 <td>{{p.model}}</td>
                 <td class="has-text-right">
                   <span class="is-size-5">{{p.homeDepotPriceLabel}}</span><br/>
@@ -125,7 +128,7 @@ export default {
         return {
           id: p.product.id,
           name: p.product.name,
-          nameLabel: p.product.name.length > 40 ? p.product.name.slice(0, 40) + '...' : p.product.name,
+          nameAbbr: p.product.name.length > 40 ? p.product.name.slice(0, 40) + '...' : '',
           model: p.product.model,
           homeDepotPriceValue: homeDepotPrice.value,
           homeDepotPriceLabel: homeDepotPrice.label,
