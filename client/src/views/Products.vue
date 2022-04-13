@@ -66,6 +66,12 @@
                     <i class="fas" :class="{'fa-sort-up': sortOption.asc, 'fa-sort-down': !sortOption.asc}"></i>
                   </span>
                 </th>
+                <th class="is-clickable has-text-centered" @click="changeSortOption('homeDepotPriceFlag')">
+                  <span>Flag</span>
+                  <span class="icon" v-if="sortOption.field == 'homeDepotPriceFlag'">
+                    <i class="fas" :class="{'fa-sort-up': sortOption.asc, 'fa-sort-down': !sortOption.asc}"></i>
+                  </span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -79,6 +85,11 @@
                 <td class="has-text-right">
                   <span class="is-size-5">{{p.homeDepotPriceLabel}}</span><br/>
                   <span class="is-size-7 has-text-grey">{{p.homeDepotPriceDate}}</span>
+                </td>
+                <td class="has-text-centered">
+                  <span class="icon is-size-5" :class="{'has-text-success': p.homeDepotPriceFlag == 'DOWN', 'has-text-danger': p.homeDepotPriceFlag == 'UP'}">
+                    <i class="fas" :class="{'fa-arrow-up': p.homeDepotPriceFlag == 'UP', 'fa-arrow-down': p.homeDepotPriceFlag == 'DOWN'}"></i>
+                  </span>
                 </td>
               </tr>
             </tbody>
@@ -104,7 +115,7 @@ export default {
       waiting: false,
       search: '',
       filter: 'all',
-      sortOption: { field: 'id', asc: true },
+      sortOption: { field: 'homeDepotPriceFlag', asc: false },
       costs: [],
       products: [],
     }
@@ -133,6 +144,7 @@ export default {
           homeDepotPriceValue: homeDepotPrice.value,
           homeDepotPriceLabel: homeDepotPrice.label,
           homeDepotPriceDate: homeDepotPrice.date,
+          homeDepotPriceFlag: homeDepotPrice.flag
         }
       })
       var sort = this.sortOption
@@ -182,7 +194,8 @@ export default {
           minimumFractionDigits: 2,
           useGrouping: false
         }),
-        date: price.date
+        date: price.date,
+        flag: price.flag
       }
     },
     changeSortOption (field) {

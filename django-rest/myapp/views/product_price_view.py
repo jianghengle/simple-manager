@@ -77,6 +77,19 @@ def update_product_latest_price(request, product_id, channel_id):
     now = datetime.datetime.utcnow()
     price_value = get_home_depot_price(product.home_depot_item_id)
     timestamp = int(now.timestamp() * 1000)
+
+    recent_timestamp = timestamp - 864000000
+    recent_prices = list(Price.objects.filter(product_id=product.id, channel_id=channel.id, timestamp__gt=recent_timestamp))
+    recent_prices.sort(reverse=True, key=get_price_timestamp)
+    flag = ''
+    for rp in recent_prices:
+        if not price_value == rp.price:
+            if  price_value > rp.price:
+                flag = 'UP'
+            else:
+                flag = 'DOWN'
+            break
+
     date = datetime.date(now.year, now.month, now.day).isoformat()
     latest_prices = list(Price.objects.filter(product_id=product.id, channel_id=channel.id, is_latest=True))
     latest_prices.sort(reverse=True, key=get_price_timestamp)
@@ -91,6 +104,7 @@ def update_product_latest_price(request, product_id, channel_id):
         if timestamp > latest_price.timestamp:
             if date == latest_price.date:
                 latest_price.price = price_value
+                latest_price.flag = flag
                 latest_price.timestamp = timestamp
                 latest_price.save()
             else:
@@ -100,6 +114,7 @@ def update_product_latest_price(request, product_id, channel_id):
                 price.product_id = product.id
                 price.channel_id = channel.id
                 price.price = price_value
+                price.flag = flag
                 price.date = date
                 price.timestamp = timestamp
                 price.is_latest = True
@@ -110,6 +125,7 @@ def update_product_latest_price(request, product_id, channel_id):
         price.product_id = product.id
         price.channel_id = channel.id
         price.price = price_value
+        price.flag = flag
         price.date = date
         price.timestamp = timestamp
         price.is_latest = True

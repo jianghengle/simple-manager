@@ -7,6 +7,7 @@ class Price(models.Model):
     date = models.CharField(max_length=128)
     timestamp = models.BigIntegerField()
     is_latest = models.BooleanField()
+    flag = models.CharField(max_length=64, default='', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -21,6 +22,7 @@ class Price(models.Model):
             'productId': self.product_id,
             'channelId': self.channel_id,
             'price': self.price,
+            'flag': self.flag,
             'date': self.date,
             'timestamp': self.timestamp,
             'isLatest': self.is_latest,
@@ -32,6 +34,7 @@ class Price(models.Model):
         self.product_id = data['productId']
         self.channel_id = data['channelId']
         self.price = data['price']
+        self.flag = data['flag']
         self.date = data['date']
         self.timestamp = data['timestamp']
         self.is_latest = data['isLatest']

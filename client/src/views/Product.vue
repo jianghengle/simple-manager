@@ -55,7 +55,12 @@
                   <td>{{i + 1}}</td>
                   <td class="price-date">{{d}}</td>
                   <td v-for="(c, j) in channels" :key="'row-' + i + '-' + j">
-                    {{datePriceMap[d][c.channel.id] ? datePriceMap[d][c.channel.id].priceLabel : ''}}
+                    <span v-if="datePriceMap[d][c.channel.id]">
+                      <span>{{datePriceMap[d][c.channel.id].priceLabel}}</span>&nbsp;
+                      <span :class="{'has-text-success': datePriceMap[d][c.channel.id].flag == 'DOWN', 'has-text-danger': datePriceMap[d][c.channel.id].flag == 'UP'}">
+                        <i class="fas" :class="{'fa-arrow-up': datePriceMap[d][c.channel.id].flag == 'UP', 'fa-arrow-down': datePriceMap[d][c.channel.id].flag == 'DOWN'}"></i>
+                      </span>
+                    </span>
                   </td>
                 </tr>
               </tbody>
