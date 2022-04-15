@@ -66,9 +66,9 @@
                     <i class="fas" :class="{'fa-sort-up': sortOption.asc, 'fa-sort-down': !sortOption.asc}"></i>
                   </span>
                 </th>
-                <th class="is-clickable has-text-centered" @click="changeSortOption('homeDepotPriceFlag')">
-                  <span>Flag</span>
-                  <span class="icon" v-if="sortOption.field == 'homeDepotPriceFlag'">
+                <th class="is-clickable has-text-centered" @click="changeSortOption('homeDepotPriceLatestChange')">
+                  <span>Latest Change</span>
+                  <span class="icon" v-if="sortOption.field == 'homeDepotPriceLatestChange'">
                     <i class="fas" :class="{'fa-sort-up': sortOption.asc, 'fa-sort-down': !sortOption.asc}"></i>
                   </span>
                 </th>
@@ -87,8 +87,11 @@
                   <span class="is-size-7 has-text-grey">{{p.homeDepotPriceDate}}</span>
                 </td>
                 <td class="has-text-centered">
-                  <span class="icon is-size-5" :class="{'has-text-success': p.homeDepotPriceFlag == 'DOWN', 'has-text-danger': p.homeDepotPriceFlag == 'UP'}">
-                    <i class="fas" :class="{'fa-arrow-up': p.homeDepotPriceFlag == 'UP', 'fa-arrow-down': p.homeDepotPriceFlag == 'DOWN'}"></i>
+                  <span v-if="p.homeDepotPriceLatestChange">
+                    <span>{{p.homeDepotPriceLatestChange.slice(0, -2)}}</span>
+                    <span class="icon is-size-5" :class="{'has-text-success': p.homeDepotPriceLatestChange.endsWith(',-'), 'has-text-danger': p.homeDepotPriceLatestChange.endsWith(',+')}">
+                      <i class="fas" :class="{'fa-arrow-up': p.homeDepotPriceLatestChange.endsWith(',+'), 'fa-arrow-down': p.homeDepotPriceLatestChange.endsWith(',-')}"></i>
+                    </span>
                   </span>
                 </td>
               </tr>
@@ -115,7 +118,7 @@ export default {
       waiting: false,
       search: '',
       filter: 'all',
-      sortOption: { field: 'homeDepotPriceFlag', asc: false },
+      sortOption: { field: 'homeDepotPriceLatestChange', asc: false },
       costs: [],
       products: [],
     }
@@ -144,7 +147,8 @@ export default {
           homeDepotPriceValue: homeDepotPrice.value,
           homeDepotPriceLabel: homeDepotPrice.label,
           homeDepotPriceDate: homeDepotPrice.date,
-          homeDepotPriceFlag: homeDepotPrice.flag
+          homeDepotPriceFlag: homeDepotPrice.flag,
+          homeDepotPriceLatestChange: homeDepotPrice.latestChange,
         }
       })
       var sort = this.sortOption
@@ -195,7 +199,8 @@ export default {
           useGrouping: false
         }),
         date: price.date,
-        flag: price.flag
+        flag: price.flag,
+        latestChange: price.latestChange
       }
     },
     changeSortOption (field) {

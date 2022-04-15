@@ -91,6 +91,9 @@ def update_product_latest_price(request, product_id, channel_id):
             break
 
     date = datetime.date(now.year, now.month, now.day).isoformat()
+
+    latest_change = find_latest_change(price_value, date, product.id, channel.id)
+
     latest_prices = list(Price.objects.filter(product_id=product.id, channel_id=channel.id, is_latest=True))
     latest_prices.sort(reverse=True, key=get_price_timestamp)
     latest_price = None
@@ -104,6 +107,7 @@ def update_product_latest_price(request, product_id, channel_id):
         if timestamp > latest_price.timestamp:
             if date == latest_price.date:
                 latest_price.price = price_value
+                latest_price.latest_change = latest_change
                 latest_price.flag = flag
                 latest_price.timestamp = timestamp
                 latest_price.save()
@@ -114,6 +118,7 @@ def update_product_latest_price(request, product_id, channel_id):
                 price.product_id = product.id
                 price.channel_id = channel.id
                 price.price = price_value
+                price.latest_change = latest_change
                 price.flag = flag
                 price.date = date
                 price.timestamp = timestamp
@@ -125,6 +130,7 @@ def update_product_latest_price(request, product_id, channel_id):
         price.product_id = product.id
         price.channel_id = channel.id
         price.price = price_value
+        price.latest_change = latest_change
         price.flag = flag
         price.date = date
         price.timestamp = timestamp
@@ -134,7 +140,22 @@ def update_product_latest_price(request, product_id, channel_id):
 
     return Response(latest_price.to_json())
 
+def find_latest_change(current_price, current_date, product_id, channel_id):
+    prices = list(Price.objects.filter(product_id=product_id, channel_id=channel_id))
+    prices.sort(reverse=True, key=get_price_timestamp)
+    last_price = current_price
+    last_date = current_date
+    for price in prices:
+        if not last_price == price.price:
+            if last_price > price.price:
+                return last_date + ',+'
+            return last_date + ',-'
+
+        if price.latest_change:
+            return price.latest_change
+        last_price = price.price
+        last_date = price.date
+    return ''
 
 def get_price_timestamp(p):
   return p.timestamp
-

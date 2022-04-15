@@ -8,6 +8,7 @@ class Price(models.Model):
     timestamp = models.BigIntegerField()
     is_latest = models.BooleanField()
     flag = models.CharField(max_length=64, default='', blank=True)
+    latest_change = models.CharField(max_length=128, default='', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -26,6 +27,7 @@ class Price(models.Model):
             'date': self.date,
             'timestamp': self.timestamp,
             'isLatest': self.is_latest,
+            'latestChange': self.latest_change,
             'createdAt': self.created_at.timestamp(),
             'updatedAt': self.updated_at.timestamp(),
         }
@@ -38,3 +40,4 @@ class Price(models.Model):
         self.date = data['date']
         self.timestamp = data['timestamp']
         self.is_latest = data['isLatest']
+        self.latest_change = data['latestChange']

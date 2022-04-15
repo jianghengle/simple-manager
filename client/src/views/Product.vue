@@ -57,8 +57,10 @@
                   <td v-for="(c, j) in channels" :key="'row-' + i + '-' + j">
                     <span v-if="datePriceMap[d][c.channel.id]">
                       <span>{{datePriceMap[d][c.channel.id].priceLabel}}</span>&nbsp;
-                      <span :class="{'has-text-success': datePriceMap[d][c.channel.id].flag == 'DOWN', 'has-text-danger': datePriceMap[d][c.channel.id].flag == 'UP'}">
-                        <i class="fas" :class="{'fa-arrow-up': datePriceMap[d][c.channel.id].flag == 'UP', 'fa-arrow-down': datePriceMap[d][c.channel.id].flag == 'DOWN'}"></i>
+                      <span v-if="datePriceMap[d][c.channel.id].latestChange.startsWith(datePriceMap[d][c.channel.id].date)">
+                        <span :class="{'has-text-success': datePriceMap[d][c.channel.id].latestChange.endsWith(',-'), 'has-text-danger': datePriceMap[d][c.channel.id].latestChange.endsWith(',+')}">
+                          <i class="fas" :class="{'fa-arrow-up': datePriceMap[d][c.channel.id].latestChange.endsWith(',+'), 'fa-arrow-down': datePriceMap[d][c.channel.id].latestChange.endsWith(',-')}"></i>
+                        </span>
                       </span>
                     </span>
                   </td>
