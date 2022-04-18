@@ -148,11 +148,12 @@ def find_latest_change(current_price, current_date, product_id, channel_id):
     for price in prices:
         if not last_price == price.price:
             if last_price > price.price:
-                return last_date + ',+'
-            return last_date + ',-'
+                return price.date + ',+,' + str(price.price)
+            return price.date + ',-,' + str(price.price)
 
-        if price.latest_change:
+        if price.latest_change and (not price.latest_change.endswith((',+', ',-'))):
             return price.latest_change
+
         last_price = price.price
         last_date = price.date
     return ''

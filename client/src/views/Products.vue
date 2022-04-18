@@ -66,8 +66,8 @@
                     <i class="fas" :class="{'fa-sort-up': sortOption.asc, 'fa-sort-down': !sortOption.asc}"></i>
                   </span>
                 </th>
-                <th class="is-clickable has-text-centered" @click="changeSortOption('homeDepotPriceLatestChange')">
-                  <span>Latest Change</span>
+                <th class="is-clickable has-text-right" @click="changeSortOption('homeDepotPriceLatestChange')">
+                  <span>Latest Change From</span>
                   <span class="icon" v-if="sortOption.field == 'homeDepotPriceLatestChange'">
                     <i class="fas" :class="{'fa-sort-up': sortOption.asc, 'fa-sort-down': !sortOption.asc}"></i>
                   </span>
@@ -86,12 +86,13 @@
                   <span class="is-size-5">{{p.homeDepotPriceLabel}}</span><br/>
                   <span class="is-size-7 has-text-grey">{{p.homeDepotPriceDate}}</span>
                 </td>
-                <td class="has-text-centered">
+                <td class="has-text-right">
                   <span v-if="p.homeDepotPriceLatestChange">
-                    <span>{{p.homeDepotPriceLatestChange.slice(0, -2)}}</span>
-                    <span class="icon is-size-5" :class="{'has-text-success': p.homeDepotPriceLatestChange.endsWith(',-'), 'has-text-danger': p.homeDepotPriceLatestChange.endsWith(',+')}">
-                      <i class="fas" :class="{'fa-arrow-up': p.homeDepotPriceLatestChange.endsWith(',+'), 'fa-arrow-down': p.homeDepotPriceLatestChange.endsWith(',-')}"></i>
-                    </span>
+                    <span class="is-size-5">{{p.homeDepotPriceLatestChangePriceLabel}}</span>
+                    <span class="icon is-size-5" :class="{'has-text-success': p.homeDepotPriceLatestChangeLabels[1] == '-', 'has-text-danger': p.homeDepotPriceLatestChangeLabels[1] == '+'}">
+                      <i class="fas" :class="{'fa-arrow-up': p.homeDepotPriceLatestChangeLabels[1] == '+', 'fa-arrow-down': p.homeDepotPriceLatestChangeLabels[1] == '-'}"></i>
+                    </span><br/>
+                    <span class="is-size-7 has-text-grey">{{p.homeDepotPriceLatestChangeLabels[0]}}</span>
                   </span>
                 </td>
               </tr>
@@ -139,6 +140,7 @@ export default {
       var vm = this
       var transformedProducts = filteredProducts.map(p => {
         var homeDepotPrice = vm.findChannelPrice(p, 'Home Depot')
+        console.log(homeDepotPrice.latestChangeLabels)
         return {
           id: p.product.id,
           name: p.product.name,
@@ -149,6 +151,12 @@ export default {
           homeDepotPriceDate: homeDepotPrice.date,
           homeDepotPriceFlag: homeDepotPrice.flag,
           homeDepotPriceLatestChange: homeDepotPrice.latestChange,
+          homeDepotPriceLatestChangeLabels: homeDepotPrice.latestChangeLabels,
+          homeDepotPriceLatestChangePriceLabel: (homeDepotPrice.latestChangeLabels && homeDepotPrice.latestChangeLabels[2]) ? '$' + homeDepotPrice.latestChangeLabels[2].toLocaleString('en-US', {
+            maximumFractionDigits: 2,
+            minimumFractionDigits: 2,
+            useGrouping: false
+          }) : '',
         }
       })
       var sort = this.sortOption
@@ -200,7 +208,8 @@ export default {
         }),
         date: price.date,
         flag: price.flag,
-        latestChange: price.latestChange
+        latestChange: price.latestChange,
+        latestChangeLabels: price.latestChange ? price.latestChange.split(',') : [],
       }
     },
     changeSortOption (field) {
