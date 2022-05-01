@@ -15,6 +15,6 @@ def get_home_depot_price(item_id):
         },
         "query": "query productClientOnlyProduct($storeId: String, $itemId: String!, $dataSource: String, $loyaltyMembershipInput: LoyaltyMembershipInput) { product(itemId: $itemId, dataSource: $dataSource, loyaltyMembershipInput: $loyaltyMembershipInput) { pricing(storeId: $storeId) { value  original }  }}"
     }
-    resp = requests.post(url, headers=headers, json=payload)
+    resp = requests.post(url, headers=headers, json=payload, timeout=5)
     data = json.loads(resp.text)
     return float(data['data']['product']['pricing']['value'])

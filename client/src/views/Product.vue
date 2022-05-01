@@ -162,9 +162,10 @@ export default {
       this.$http.get(this.server + '/myapp/get-product-with-prices/' + this.productId + '/').then(resp => {
         this.product = resp.body.product
         this.channels = resp.body.channels
+        /*
         for (const channel of this.channels) {
           this.updateLatestPrice(channel.channel)
-        }
+        }*/
         this.waiting = false
       }, err => {
         this.error = err.body

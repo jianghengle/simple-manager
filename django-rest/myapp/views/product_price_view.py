@@ -75,7 +75,9 @@ def update_product_latest_price(request, product_id, channel_id):
         raise 'cannot find prices other than Home Depot'
 
     now = datetime.datetime.utcnow()
-    price_value = get_home_depot_price(product.home_depot_item_id)
+    if 'priceValue' not in request.data:
+        raise 'you need to input price value'
+    price_value = float(request.data['priceValue'])
     timestamp = int(now.timestamp() * 1000)
 
     recent_timestamp = timestamp - 864000000
