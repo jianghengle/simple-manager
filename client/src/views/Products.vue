@@ -16,6 +16,7 @@
             <span class="select">
               <select v-model="filter">
                 <option :value="'all'">All Products</option>
+                <option :value="'out of stock'">Out of Stock{{filter == 'out of stock' ? ' (' + showingProducts.length + ')' : ''}}</option>
               </select>
             </span>
             <span class="icon is-small is-left">
@@ -83,6 +84,7 @@
                 </td>
                 <td>{{p.model}}</td>
                 <td class="has-text-right">
+                  <span class="tag is-danger" v-if="p.homeDepotPriceFlag == 'Out of Stock'">Out of Stock</span>&nbsp;
                   <span class="is-size-5">{{p.homeDepotPriceLabel}}</span><br/>
                   <span class="is-size-7 has-text-grey">{{p.homeDepotPriceDate}}</span>
                 </td>
@@ -131,6 +133,9 @@ export default {
     token () {
       return this.$store.state.user.token
     },
+    filterOption () {
+      return this.$store.state.products.filterOption
+    },
     showingProducts () {
       var search = this.search.trim().toLowerCase()
       var filteredProducts = this.products.filter(p => {
@@ -140,7 +145,6 @@ export default {
       var vm = this
       var transformedProducts = filteredProducts.map(p => {
         var homeDepotPrice = vm.findChannelPrice(p, 'Home Depot')
-        console.log(homeDepotPrice.latestChangeLabels)
         return {
           id: p.product.id,
           name: p.product.name,
@@ -159,6 +163,11 @@ export default {
           }) : '',
         }
       })
+
+      if (this.filterOption == 'out of stock') {
+        transformedProducts = transformedProducts.filter(p => p.homeDepotPriceFlag == 'Out of Stock')
+      }
+      
       var sort = this.sortOption
       var sortedProducts = transformedProducts.sort((a, b) => {
         var va = a[sort.field]
@@ -178,6 +187,11 @@ export default {
         return sort.asc ? va.localeCompare(vb) : vb.localeCompare(va)
       })
       return sortedProducts
+    },
+  },
+  watch: {
+    filter: function (val) {
+      this.$store.commit('products/setFilterOption', val)
     },
   },
   methods: {
@@ -224,6 +238,7 @@ export default {
   },
   mounted () {
      this.getProducts()
+     this.filter = this.filterOption
   },
 }
 </script>

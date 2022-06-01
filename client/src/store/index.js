@@ -4,6 +4,7 @@ import config from './modules/config'
 import user from './modules/user'
 import modals from './modules/modals'
 import costs from './modules/costs'
+import products from './modules/products'
 
 Vue.use(Vuex)
 
@@ -19,5 +20,6 @@ export default new Vuex.Store({
     user: user,
     modals: modals,
     costs: costs,
+    products: products,
   }
 })

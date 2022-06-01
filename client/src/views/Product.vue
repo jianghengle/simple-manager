@@ -61,7 +61,8 @@
                         <span :class="{'has-text-success': datePriceMap[d][c.channel.id].latestChange.endsWith(',-'), 'has-text-danger': datePriceMap[d][c.channel.id].latestChange.endsWith(',+')}">
                           <i class="fas" :class="{'fa-arrow-up': datePriceMap[d][c.channel.id].latestChange.endsWith(',+'), 'fa-arrow-down': datePriceMap[d][c.channel.id].latestChange.endsWith(',-')}"></i>
                         </span>
-                      </span>
+                      </span>&nbsp;
+                      <span class="tag is-danger" v-if="datePriceMap[d][c.channel.id].flag == 'Out of Stock'">Out of Stock</span>
                     </span>
                   </td>
                 </tr>

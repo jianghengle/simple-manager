@@ -84,7 +84,7 @@ def get_home_depot_price(item_id):
     }
     resp = requests.post(url, headers=headers, json=payload, timeout=5)
     data = json.loads(resp.text)
-    return data['data']['product']['pricing']['value']
+    return (data['data']['product']['pricing']['value'], data['data']['product']['availabilityType']['status'])
 
 
 # lambda handler: program entry
@@ -93,16 +93,19 @@ def lambda_handler(event, context):
     products = url_get('/myapp/get-products-with-latest-prices/', token=token)
     batch = collect_batch(products)
     print('Batch size: ' + str(len(batch)))
+    print(json.loads(requests.get('https://api.ipify.org?format=json').text))
     for item in batch:
         product_id = str(item['productId'])
         channel_id = str(item['channelId'])
         home_depot_item_id = str(item['homeDepotItemId'])
         print(item)
-        print(json.loads(requests.get('https://api.ipify.org?format=json').text))
         try:
-            price_value = get_home_depot_price(home_depot_item_id)
+            (price_value, availability) = get_home_depot_price(home_depot_item_id)
             print(price_value)
-            url_post('/myapp/update-product-latest-price/' + product_id + '/' + channel_id + '/', {'priceValue': price_value}, token=token)
+            print(availability)
+            availability_status = 'In Stock' if availability else 'Out of Stock'
+            print(availability_status)
+            url_post('/myapp/update-product-latest-price/' + product_id + '/' + channel_id + '/', {'priceValue': price_value, 'availability': availability_status}, token=token)
         except Exception as e:
             print(e)
             print('Error when processing ' + str(item))

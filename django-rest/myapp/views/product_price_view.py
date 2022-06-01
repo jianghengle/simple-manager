@@ -78,19 +78,13 @@ def update_product_latest_price(request, product_id, channel_id):
     if 'priceValue' not in request.data:
         raise 'you need to input price value'
     price_value = float(request.data['priceValue'])
+    availability = request.data['availability']
     timestamp = int(now.timestamp() * 1000)
 
     recent_timestamp = timestamp - 864000000
     recent_prices = list(Price.objects.filter(product_id=product.id, channel_id=channel.id, timestamp__gt=recent_timestamp))
     recent_prices.sort(reverse=True, key=get_price_timestamp)
-    flag = ''
-    for rp in recent_prices:
-        if not price_value == rp.price:
-            if  price_value > rp.price:
-                flag = 'UP'
-            else:
-                flag = 'DOWN'
-            break
+    flag = availability
 
     date = datetime.date(now.year, now.month, now.day).isoformat()
 
