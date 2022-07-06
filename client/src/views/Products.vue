@@ -15,7 +15,7 @@
           <p class="control has-icons-left">
             <span class="select">
               <select v-model="filter">
-                <option :value="'all'">All Products</option>
+                <option :value="'all'">All Products{{filter == 'all' ? ' (' + showingProducts.length + ')' : ''}}</option>
                 <option :value="'out of stock'">Out of Stock{{filter == 'out of stock' ? ' (' + showingProducts.length + ')' : ''}}</option>
               </select>
             </span>
@@ -49,12 +49,12 @@
                     <i class="fas" :class="{'fa-sort-up': sortOption.asc, 'fa-sort-down': !sortOption.asc}"></i>
                   </span>
                 </th>
-                <th class="is-clickable" @click="changeSortOption('name')">
+                <!--<th class="is-clickable" @click="changeSortOption('name')">
                   <span>Name</span>
                   <span class="icon" v-if="sortOption.field == 'name'">
                     <i class="fas" :class="{'fa-sort-up': sortOption.asc, 'fa-sort-down': !sortOption.asc}"></i>
                   </span>
-                </th>
+                </th>-->
                 <th class="is-clickable" @click="changeSortOption('model')">
                   <span>Model</span>
                   <span class="icon" v-if="sortOption.field == 'model'">
@@ -62,14 +62,26 @@
                   </span>
                 </th>
                 <th class="is-clickable has-text-right" @click="changeSortOption('homeDepotPriceValue')">
-                  <span>Home Depot Price</span>
+                  <span>Home Depot</span>
                   <span class="icon" v-if="sortOption.field == 'homeDepotPriceValue'">
                     <i class="fas" :class="{'fa-sort-up': sortOption.asc, 'fa-sort-down': !sortOption.asc}"></i>
                   </span>
                 </th>
                 <th class="is-clickable has-text-right" @click="changeSortOption('homeDepotPriceLatestChange')">
-                  <span>Latest Change From</span>
+                  <span>Change From</span>
                   <span class="icon" v-if="sortOption.field == 'homeDepotPriceLatestChange'">
+                    <i class="fas" :class="{'fa-sort-up': sortOption.asc, 'fa-sort-down': !sortOption.asc}"></i>
+                  </span>
+                </th>
+                <th class="is-clickable has-text-right" @click="changeSortOption('wayfairPriceValue')">
+                  <span>Wayfair</span>
+                  <span class="icon" v-if="sortOption.field == 'wayfairPriceValue'">
+                    <i class="fas" :class="{'fa-sort-up': sortOption.asc, 'fa-sort-down': !sortOption.asc}"></i>
+                  </span>
+                </th>
+                <th class="is-clickable has-text-right" @click="changeSortOption('wayfairPriceLatestChange')">
+                  <span>Change From</span>
+                  <span class="icon" v-if="sortOption.field == 'wayfairPriceLatestChange'">
                     <i class="fas" :class="{'fa-sort-up': sortOption.asc, 'fa-sort-down': !sortOption.asc}"></i>
                   </span>
                 </th>
@@ -78,13 +90,15 @@
             <tbody>
               <tr class="is-clickable" v-for="(p, i) in showingProducts" :key="'product-' + i" @click="viewProduct(p)">
                 <td>{{p.id}}</td>
-                <td>
+                <!--<td>
                   <abbr v-if="p.nameAbbr" :title="p.name">{{p.nameAbbr}}</abbr>
                   <span v-if="!p.nameAbbr">{{p.name}}</span>
+                </td>-->
+                <td>
+                  <abbr :title="p.name">{{p.model}}</abbr>
                 </td>
-                <td>{{p.model}}</td>
                 <td class="has-text-right">
-                  <span class="tag is-danger" v-if="p.homeDepotPriceFlag == 'Out of Stock'">Out of Stock</span>&nbsp;
+                  <span class="tag is-danger" v-if="p.homeDepotPriceFlag == 'Out of Stock'">OOS</span>&nbsp;
                   <span class="is-size-5">{{p.homeDepotPriceLabel}}</span><br/>
                   <span class="is-size-7 has-text-grey">{{p.homeDepotPriceDate}}</span>
                 </td>
@@ -95,6 +109,20 @@
                       <i class="fas" :class="{'fa-arrow-up': p.homeDepotPriceLatestChangeLabels[1] == '+', 'fa-arrow-down': p.homeDepotPriceLatestChangeLabels[1] == '-'}"></i>
                     </span><br/>
                     <span class="is-size-7 has-text-grey">{{p.homeDepotPriceLatestChangeLabels[0]}}</span>
+                  </span>
+                </td>
+                <td class="has-text-right">
+                  <span class="tag is-danger" v-if="p.wayfairPriceFlag == 'Out of Stock'">OOS</span>&nbsp;
+                  <span class="is-size-5">{{p.wayfairPriceLabel}}</span><br/>
+                  <span class="is-size-7 has-text-grey">{{p.wayfairPriceDate}}</span>
+                </td>
+                <td class="has-text-right">
+                  <span v-if="p.wayfairPriceLatestChange">
+                    <span class="is-size-5">{{p.wayfairPriceLatestChangePriceLabel}}</span>
+                    <span class="icon is-size-5" :class="{'has-text-success': p.wayfairPriceLatestChangeLabels[1] == '-', 'has-text-danger': p.wayfairPriceLatestChangeLabels[1] == '+'}">
+                      <i class="fas" :class="{'fa-arrow-up': p.wayfairPriceLatestChangeLabels[1] == '+', 'fa-arrow-down': p.wayfairPriceLatestChangeLabels[1] == '-'}"></i>
+                    </span><br/>
+                    <span class="is-size-7 has-text-grey">{{p.wayfairPriceLatestChangeLabels[0]}}</span>
                   </span>
                 </td>
               </tr>
@@ -145,6 +173,7 @@ export default {
       var vm = this
       var transformedProducts = filteredProducts.map(p => {
         var homeDepotPrice = vm.findChannelPrice(p, 'Home Depot')
+        var wayfairPrice = vm.findChannelPrice(p, 'Wayfair')
         return {
           id: p.product.id,
           name: p.product.name,
@@ -161,11 +190,22 @@ export default {
             minimumFractionDigits: 2,
             useGrouping: false
           }) : '',
+          wayfairPriceValue: wayfairPrice.value,
+          wayfairPriceLabel: wayfairPrice.label,
+          wayfairPriceDate: wayfairPrice.date,
+          wayfairPriceFlag: wayfairPrice.flag,
+          wayfairPriceLatestChange: wayfairPrice.latestChange,
+          wayfairPriceLatestChangeLabels: wayfairPrice.latestChangeLabels,
+          wayfairPriceLatestChangePriceLabel: (wayfairPrice.latestChangeLabels && wayfairPrice.latestChangeLabels[2]) ? '$' + wayfairPrice.latestChangeLabels[2].toLocaleString('en-US', {
+            maximumFractionDigits: 2,
+            minimumFractionDigits: 2,
+            useGrouping: false
+          }) : '',
         }
       })
 
       if (this.filterOption == 'out of stock') {
-        transformedProducts = transformedProducts.filter(p => p.homeDepotPriceFlag == 'Out of Stock')
+        transformedProducts = transformedProducts.filter(p => p.homeDepotPriceFlag == 'Out of Stock' || p.wayfairPriceFlag == 'Out of Stock')
       }
       
       var sort = this.sortOption
@@ -181,7 +221,7 @@ export default {
           }
           return 0
         }
-        if (sort.field == 'id' || sort.field == 'homeDepotPriceValue') {
+        if (sort.field == 'id' || sort.field == 'homeDepotPriceValue' || sort.field == 'wayfairPriceValue') {
           return sort.asc ? va - vb : vb - va
         }
         return sort.asc ? va.localeCompare(vb) : vb.localeCompare(va)

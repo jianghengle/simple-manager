@@ -39,7 +39,7 @@ def collect_batch(products):
     batch = []
     for product in products:
         for channel in product['channels']:
-            if channel['channel']['name'] == 'Home Depot':
+            if channel['channel']['name'] == 'Home Depot' and product['product']['homeDepotItemId']:
                 if ('latestPrice' not in channel) or (not channel['latestPrice']['date'] == date):
                     batch.append({'productId': product['product']['id'], 'homeDepotItemId': product['product']['homeDepotItemId'], 'channelId': channel['channel']['id']})
                     if len(batch) == BATCH_SIZE:

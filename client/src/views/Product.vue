@@ -37,6 +37,18 @@
               <input class="input" type="text" v-model="product.homeDepotItemId" readonly>
             </div>
           </div>
+          <div class="field mt-3">
+            <label class="label">Wayfair Sku</label>
+            <div class="control">
+              <input class="input" type="text" v-model="product.wayfairSku" readonly>
+            </div>
+          </div>
+          <div class="field mt-3">
+            <label class="label">Wayfair Option Name</label>
+            <div class="control">
+              <input class="input" type="text" v-model="product.wayfairOptionName" readonly>
+            </div>
+          </div>
 
           <div>
             <h1 class="title is-5 mt-6">Price Table</h1>

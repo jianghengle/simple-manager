@@ -30,4 +30,5 @@ urlpatterns = [
     path('get-products-with-latest-prices/', product_price_view.get_products_with_latest_prices, name='get-products-with-latest-prices'),
     path('get-product-with-prices/<str:product_id>/', product_price_view.get_product_with_prices, name='get-product-with-prices'),
     path('update-product-latest-price/<str:product_id>/<str:channel_id>/', product_price_view.update_product_latest_price, name='update-product-latest-price'),
+    path('update-product-by-model/', product_price_view.update_product_by_model, name='update-product-by-model'),
 ]

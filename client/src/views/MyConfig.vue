@@ -126,14 +126,21 @@
         You have unsaved changes!
       </div>
 
+      <hr />
+
+      <product-updater />
     </section>
   </div>
 </template>
 
 <script>
+import ProductUpdater from '@/components/price-monitor/ProductUpdater'
 
 export default {
   name: 'MyConfig',
+  components: {
+    ProductUpdater
+  },
   data () {
     return {
       waiting: false,

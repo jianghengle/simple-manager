@@ -71,8 +71,6 @@ def get_product_with_prices(request, product_id):
 def update_product_latest_price(request, product_id, channel_id):
     product = Product.objects.get(pk=product_id)
     channel = Channel.objects.get(pk=channel_id)
-    if not channel.name == 'Home Depot':
-        raise 'cannot find prices other than Home Depot'
 
     now = datetime.datetime.utcnow()
     if 'priceValue' not in request.data:
@@ -156,3 +154,39 @@ def find_latest_change(current_price, current_date, product_id, channel_id):
 
 def get_price_timestamp(p):
   return p.timestamp
+
+
+@api_view(['POST'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+def update_product_by_model(request):
+    if not request.user.is_staff:
+        raise PermissionDenied({'message': 'Only admins can update product.'})
+    model = request.data.get('model', None)
+    if not model:
+        raise PermissionDenied({'message': 'Model cannot be empty'})
+    products = Product.objects.filter(model=model)
+    if len(products) > 0:
+        for product in products:
+            update_product(product, request.data)
+            product.save()
+    else:
+        product = Product()
+        update_product(product, request.data)
+        product.save()
+    return Response({'ok': True, 'model': model})
+
+
+def update_product(product, data):
+    if 'name' in data:
+        product.name = data['name']
+    if 'brand' in data:
+        product.brand = data['brand']
+    if 'model' in data:
+        product.model = data['model']
+    if 'homeDepotItemId' in data:
+        product.home_depot_item_id = data['homeDepotItemId']
+    if 'wayfairSku' in data:
+        product.wayfair_sku = data['wayfairSku']
+    if 'wayfairOptionName' in data:
+        product.wayfair_option_name = data['wayfairOptionName']

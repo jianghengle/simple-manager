@@ -10,6 +10,7 @@
     "axios": "^0.25.0",
     "bulma": "^0.9.3",
     "core-js": "^3.6.5",
+    "csv-parse": "^5.2.0",
     "dateformat": "^5.0.2",
     "vue": "^2.6.11",
     "vue-resource": "^1.5.3",
